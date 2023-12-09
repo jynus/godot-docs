@@ -1612,7 +1612,7 @@ Flag used to mark that the mesh does not have a vertex array and instead will in
 
 :ref:`ArrayFormat<enum_RenderingServer_ArrayFormat>` **ARRAY_FLAG_COMPRESS_ATTRIBUTES** = ``536870912``
 
-Flag used to mark that a mesh is using compressed attributes (vertices, normals, tangents, uvs). When this form of compression is enabled, vertex positions will be packed into into an RGBA16UNORM attribute and scaled in the vertex shader. The normal and tangent will be packed into a RG16UNORM representing an axis, and an 16 bit float stored in the A-channel of the vertex. UVs will use 16-bit normalized floats instead of full 32 bit signed floats. When using this compression mode you must either use vertices, normals, and tangents or only vertices. You cannot use normals without tangents. Importers will automatically enable this compression if they can.
+Flag used to mark that a mesh is using compressed attributes (vertices, normals, tangents, UVs). When this form of compression is enabled, vertex positions will be packed into an RGBA16UNORM attribute and scaled in the vertex shader. The normal and tangent will be packed into an RG16UNORM representing an axis, and a 16-bit float stored in the A-channel of the vertex. UVs will use 16-bit normalized floats instead of full 32-bit signed floats. When using this compression mode you must use either vertices, normals, and tangents or only vertices. You cannot use normals without tangents. Importers will automatically enable this compression if they can.
 
 .. _class_RenderingServer_constant_ARRAY_FLAG_FORMAT_VERSION_BASE:
 
@@ -2532,7 +2532,7 @@ Draw particles in the order that they appear in the particles array.
 
 :ref:`ParticlesDrawOrder<enum_RenderingServer_ParticlesDrawOrder>` **PARTICLES_DRAW_ORDER_LIFETIME** = ``1``
 
-Sort particles based on their lifetime.
+Sort particles based on their lifetime. In other words, the particle with the highest lifetime is drawn at the front.
 
 .. _class_RenderingServer_constant_PARTICLES_DRAW_ORDER_REVERSE_LIFETIME:
 
@@ -2540,7 +2540,7 @@ Sort particles based on their lifetime.
 
 :ref:`ParticlesDrawOrder<enum_RenderingServer_ParticlesDrawOrder>` **PARTICLES_DRAW_ORDER_REVERSE_LIFETIME** = ``2``
 
-
+Sort particles based on the inverse of their lifetime. In other words, the particle with the lowest lifetime is drawn at the front.
 
 .. _class_RenderingServer_constant_PARTICLES_DRAW_ORDER_VIEW_DEPTH:
 
@@ -4630,7 +4630,7 @@ Uses the default filter mode for this :ref:`Viewport<class_Viewport>`.
 
 :ref:`CanvasItemTextureFilter<enum_RenderingServer_CanvasItemTextureFilter>` **CANVAS_ITEM_TEXTURE_FILTER_NEAREST** = ``1``
 
-The texture filter reads from the nearest pixel only. The simplest and fastest method of filtering, but the texture will look pixelized.
+The texture filter reads from the nearest pixel only. This makes the texture look pixelated from up close, and grainy from a distance (due to mipmaps not being sampled).
 
 .. _class_RenderingServer_constant_CANVAS_ITEM_TEXTURE_FILTER_LINEAR:
 
@@ -4638,7 +4638,7 @@ The texture filter reads from the nearest pixel only. The simplest and fastest m
 
 :ref:`CanvasItemTextureFilter<enum_RenderingServer_CanvasItemTextureFilter>` **CANVAS_ITEM_TEXTURE_FILTER_LINEAR** = ``2``
 
-The texture filter blends between the nearest 4 pixels. Use this when you want to avoid a pixelated style, but do not want mipmaps.
+The texture filter blends between the nearest 4 pixels. This makes the texture look smooth from up close, and grainy from a distance (due to mipmaps not being sampled).
 
 .. _class_RenderingServer_constant_CANVAS_ITEM_TEXTURE_FILTER_NEAREST_WITH_MIPMAPS:
 
@@ -4646,7 +4646,9 @@ The texture filter blends between the nearest 4 pixels. Use this when you want t
 
 :ref:`CanvasItemTextureFilter<enum_RenderingServer_CanvasItemTextureFilter>` **CANVAS_ITEM_TEXTURE_FILTER_NEAREST_WITH_MIPMAPS** = ``3``
 
-The texture filter reads from the nearest pixel in the nearest mipmap. The fastest way to read from textures with mipmaps.
+The texture filter reads from the nearest pixel and blends between the nearest 2 mipmaps (or uses the nearest mipmap if :ref:`ProjectSettings.rendering/textures/default_filters/use_nearest_mipmap_filter<class_ProjectSettings_property_rendering/textures/default_filters/use_nearest_mipmap_filter>` is ``true``). This makes the texture look pixelated from up close, and smooth from a distance.
+
+Use this for non-pixel art textures that may be viewed at a low scale (e.g. due to :ref:`Camera2D<class_Camera2D>` zoom or sprite scaling), as mipmaps are important to smooth out pixels that are smaller than on-screen pixels.
 
 .. _class_RenderingServer_constant_CANVAS_ITEM_TEXTURE_FILTER_LINEAR_WITH_MIPMAPS:
 
@@ -4654,7 +4656,9 @@ The texture filter reads from the nearest pixel in the nearest mipmap. The faste
 
 :ref:`CanvasItemTextureFilter<enum_RenderingServer_CanvasItemTextureFilter>` **CANVAS_ITEM_TEXTURE_FILTER_LINEAR_WITH_MIPMAPS** = ``4``
 
-The texture filter blends between the nearest 4 pixels and between the nearest 2 mipmaps.
+The texture filter blends between the nearest 4 pixels and between the nearest 2 mipmaps (or uses the nearest mipmap if :ref:`ProjectSettings.rendering/textures/default_filters/use_nearest_mipmap_filter<class_ProjectSettings_property_rendering/textures/default_filters/use_nearest_mipmap_filter>` is ``true``). This makes the texture look smooth from up close, and smooth from a distance.
+
+Use this for non-pixel art textures that may be viewed at a low scale (e.g. due to :ref:`Camera2D<class_Camera2D>` zoom or sprite scaling), as mipmaps are important to smooth out pixels that are smaller than on-screen pixels.
 
 .. _class_RenderingServer_constant_CANVAS_ITEM_TEXTURE_FILTER_NEAREST_WITH_MIPMAPS_ANISOTROPIC:
 
@@ -4662,7 +4666,9 @@ The texture filter blends between the nearest 4 pixels and between the nearest 2
 
 :ref:`CanvasItemTextureFilter<enum_RenderingServer_CanvasItemTextureFilter>` **CANVAS_ITEM_TEXTURE_FILTER_NEAREST_WITH_MIPMAPS_ANISOTROPIC** = ``5``
 
-The texture filter reads from the nearest pixel, but selects a mipmap based on the angle between the surface and the camera view. This reduces artifacts on surfaces that are almost in line with the camera.
+The texture filter reads from the nearest pixel and blends between 2 mipmaps (or uses the nearest mipmap if :ref:`ProjectSettings.rendering/textures/default_filters/use_nearest_mipmap_filter<class_ProjectSettings_property_rendering/textures/default_filters/use_nearest_mipmap_filter>` is ``true``) based on the angle between the surface and the camera view. This makes the texture look pixelated from up close, and smooth from a distance. Anisotropic filtering improves texture quality on surfaces that are almost in line with the camera, but is slightly slower. The anisotropic filtering level can be changed by adjusting :ref:`ProjectSettings.rendering/textures/default_filters/anisotropic_filtering_level<class_ProjectSettings_property_rendering/textures/default_filters/anisotropic_filtering_level>`.
+
+\ **Note:** This texture filter is rarely useful in 2D projects. :ref:`CANVAS_ITEM_TEXTURE_FILTER_NEAREST_WITH_MIPMAPS<class_RenderingServer_constant_CANVAS_ITEM_TEXTURE_FILTER_NEAREST_WITH_MIPMAPS>` is usually more appropriate in this case.
 
 .. _class_RenderingServer_constant_CANVAS_ITEM_TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC:
 
@@ -4670,7 +4676,9 @@ The texture filter reads from the nearest pixel, but selects a mipmap based on t
 
 :ref:`CanvasItemTextureFilter<enum_RenderingServer_CanvasItemTextureFilter>` **CANVAS_ITEM_TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC** = ``6``
 
-The texture filter blends between the nearest 4 pixels and selects a mipmap based on the angle between the surface and the camera view. This reduces artifacts on surfaces that are almost in line with the camera. This is the slowest of the filtering options, but results in the highest quality texturing.
+The texture filter blends between the nearest 4 pixels and blends between 2 mipmaps (or uses the nearest mipmap if :ref:`ProjectSettings.rendering/textures/default_filters/use_nearest_mipmap_filter<class_ProjectSettings_property_rendering/textures/default_filters/use_nearest_mipmap_filter>` is ``true``) based on the angle between the surface and the camera view. This makes the texture look smooth from up close, and smooth from a distance. Anisotropic filtering improves texture quality on surfaces that are almost in line with the camera, but is slightly slower. The anisotropic filtering level can be changed by adjusting :ref:`ProjectSettings.rendering/textures/default_filters/anisotropic_filtering_level<class_ProjectSettings_property_rendering/textures/default_filters/anisotropic_filtering_level>`.
+
+\ **Note:** This texture filter is rarely useful in 2D projects. :ref:`CANVAS_ITEM_TEXTURE_FILTER_LINEAR_WITH_MIPMAPS<class_RenderingServer_constant_CANVAS_ITEM_TEXTURE_FILTER_LINEAR_WITH_MIPMAPS>` is usually more appropriate in this case.
 
 .. _class_RenderingServer_constant_CANVAS_ITEM_TEXTURE_FILTER_MAX:
 
@@ -7238,7 +7246,7 @@ Sets the size of the fog volume when shape is :ref:`FOG_VOLUME_SHAPE_ELLIPSOID<c
 
 void **force_draw** **(** :ref:`bool<class_bool>` swap_buffers=true, :ref:`float<class_float>` frame_step=0.0 **)**
 
-Forces redrawing of all viewports at once.
+Forces redrawing of all viewports at once. Must be called from the main thread.
 
 .. rst-class:: classref-item-separator
 
